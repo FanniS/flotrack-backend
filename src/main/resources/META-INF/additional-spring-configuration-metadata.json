@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "security.jwt.secret-key",
+    "type": "java.lang.String",
+    "description": "Secret key for JWT signing and verification. This should be a strong, unique key."
+  },
+  {
+    "name": "security.jwt.expiration-time",
+    "type": "java.lang.String",
+    "description": "The expiration time for JWT tokens in milliseconds."
+  }
+]}
