@@ -30,37 +30,37 @@ public class CategoryController {
 
 	// START: Endpoints for categories
 
-	@GetMapping("/categories/income")
+	@GetMapping("/income")
 	public ResponseEntity<List<IncomeCategory>> getIncomeCategories() {
 		List<IncomeCategory> incomeCategories = categoryService.getIncomeCategories(userAuthHelper.getCurrentUser());
 		return ResponseEntity.ok(incomeCategories);
 	}
 
-	@GetMapping("/categories/expense")
+	@GetMapping("/expense")
 	public ResponseEntity<List<ExpenseCategory>> getExpenseCategories() {
 		List<ExpenseCategory> expenseCategories = categoryService.getExpenseCategories(userAuthHelper.getCurrentUser());
 		return ResponseEntity.ok(expenseCategories);
 	}
 
-	@PostMapping("/categories/income/create")
+	@PostMapping("/income/create")
 	public ResponseEntity<IncomeCategory> saveIncomeCategory(@RequestParam IncomeCategory category) {
 		IncomeCategory incomeCategory = categoryService.saveIncomeCategory(category, userAuthHelper.getCurrentUser());
 		return ResponseEntity.ok(incomeCategory);
 	}
 
-	@PostMapping("/categories/expense/create")
+	@PostMapping("/expense/create")
 	public ResponseEntity<ExpenseCategory> saveExpenseCategory(@RequestParam ExpenseCategory category) {
 		ExpenseCategory expenseCategory = categoryService.saveExpenseCategory(category, userAuthHelper.getCurrentUser());
 		return ResponseEntity.ok(expenseCategory);
 	}
 
-	@PostMapping("/categories/income/delete/{id}")
+	@PostMapping("/income/delete/{id}")
 	public ResponseEntity<Void> deleteIncomeCategory(@PathVariable Long id) {
 		categoryService.deleteIncomeCategory(id, userAuthHelper.getCurrentUserId());
 		return ResponseEntity.noContent().build();
 	}
 
-	@PostMapping("/categories/expense/delete/{id}")
+	@PostMapping("/expense/delete/{id}")
 	public ResponseEntity<ExpenseCategory> deleteExpenseCategory(@PathVariable Long id) {
 		categoryService.deleteExpenseCategory(id, userAuthHelper.getCurrentUserId());
 		return ResponseEntity.noContent().build();
