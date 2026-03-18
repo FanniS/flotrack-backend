@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import io.swagger.v3.oas.models.security.SecurityScheme; // Add this import for the correct SecurityScheme class
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -17,12 +16,11 @@ public class OpenApiConfig {
 	public OpenAPI openAPI() {
 		return new OpenAPI().addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
 				.components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
-				.info(new Info().title("My REST API")
-						.description("Some custom description of API.")
-						.version("1.0").contact(new Contact().name("Sallo Szrajbman")
-								.email("www.baeldung.com").url("salloszraj@gmail.com"))
+				.info(new Info().title("Flotrack Rest API")
+						.description("Rest Api for Flotrack application")
+						.version("1.0")
 						.license(new License().name("License of API")
-								.url("API license URL")));
+						.url("API license URL")));
 	}
 
 	private SecurityScheme createAPIKeyScheme() {
