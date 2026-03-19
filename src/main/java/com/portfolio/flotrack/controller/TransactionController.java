@@ -91,4 +91,13 @@ public class TransactionController {
 
 	// END: Endpoints for transaction management
 
+	// START: Endpoints for transaction filtering
+	@GetMapping("/summary/amount/isExpense={isExpense}")
+	public ResponseEntity<Map<String, Double>> getTransactionByIsExpense(@PathVariable boolean isExpense) {
+		Map<String, Double> amountByCategory = transactionService.getTransactionsByIsExpenseAndSumAmountByCategory(isExpense, userAuthHelper.getCurrentUserId());
+		return ResponseEntity.ok(amountByCategory);
+	}
+
+	// END: Endpoints for transaction filtering
+
 }

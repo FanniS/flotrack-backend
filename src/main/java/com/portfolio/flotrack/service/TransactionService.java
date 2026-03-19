@@ -38,7 +38,7 @@ public class TransactionService {
 	private IncomeCategoryRepository incomeCategoryRepository;
 
 	// START: Filter methods for transactions
-/* 
+
 	public List<TransactionResponse> getTransactionsByIncomeCategory(Long incomeCategoryId, Long currentUserId) {
 		return transactionRepository.findByIncomeCategoryIdAndUserId(incomeCategoryId, currentUserId)
 				.stream()
@@ -73,7 +73,17 @@ public class TransactionService {
 				.map(this::convertTransactionToResponse)
 				.toList();
 	}
-*/
+
+	public Map<String, Double> getTransactionsByIsExpenseAndSumAmountByCategory(Boolean isExpense, Long currentUserId) {
+		List<Transaction> transactions = transactionRepository.findByIsExpenseAndUserId(isExpense, currentUserId);
+		Map<String, Double> amountByCategory = new HashMap<>();
+		for (Transaction transaction : transactions) {
+			String categoryName = transaction.getIsExpense() ? transaction.getExpenseCategory().getName() : transaction.getIncomeCategory().getName();
+			amountByCategory.put(categoryName, amountByCategory.getOrDefault(categoryName, 0.0) + transaction.getAmount());
+		}
+		return amountByCategory;
+	}
+
 	// END: Filter methods for transactions
 
 	// START: CRUD methods for transactions
