@@ -98,6 +98,12 @@ public class TransactionController {
 		return ResponseEntity.ok(amountByCategory);
 	}
 
+	@GetMapping("/summary/balance")
+	public ResponseEntity<Double> getBalance() {
+		Double balance = transactionService.getBalance(userAuthHelper.getCurrentUserId());
+		return ResponseEntity.ok(balance);
+	}
+
 	// END: Endpoints for transaction filtering
 
 }

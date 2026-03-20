@@ -60,7 +60,8 @@ public class TransactionService {
 				.toList();
 	}
 
-	public List<TransactionResponse> getTransactionsBetweenDates(LocalDate startDate, LocalDate endDate, Long currentUserId) {
+	public List<TransactionResponse> getTransactionsBetweenDates(LocalDate startDate, LocalDate endDate,
+			Long currentUserId) {
 		return transactionRepository.findByDateBetweenAndUserId(startDate, endDate, currentUserId)
 				.stream()
 				.map(this::convertTransactionToResponse)
@@ -78,10 +79,23 @@ public class TransactionService {
 		List<Transaction> transactions = transactionRepository.findByIsExpenseAndUserId(isExpense, currentUserId);
 		Map<String, Double> amountByCategory = new HashMap<>();
 		for (Transaction transaction : transactions) {
-			String categoryName = transaction.getIsExpense() ? transaction.getExpenseCategory().getName() : transaction.getIncomeCategory().getName();
-			amountByCategory.put(categoryName, amountByCategory.getOrDefault(categoryName, 0.0) + transaction.getAmount());
+			String categoryName = transaction.getIsExpense() ? transaction.getExpenseCategory().getName()
+					: transaction.getIncomeCategory().getName();
+			amountByCategory.put(categoryName,
+					amountByCategory.getOrDefault(categoryName, 0.0) + transaction.getAmount());
 		}
 		return amountByCategory;
+	}
+
+	public Double getBalance(Long currentUserId) {
+		Double totalIncome = transactionRepository.findByIsExpenseAndUserId(false, currentUserId)
+				.stream()
+				.mapToDouble(Transaction::getAmount)
+				.sum();
+		Double totalExpense = transactionRepository.findByIsExpenseAndUserId(true, currentUserId)
+				.stream().mapToDouble(Transaction::getAmount)
+				.sum();
+		return totalIncome - totalExpense;
 	}
 
 	// END: Filter methods for transactions
@@ -105,8 +119,8 @@ public class TransactionService {
 	}
 
 	private Pageable createPageRequestUsing(int page, int size) {
-    return PageRequest.of(page, size);
-}
+		return PageRequest.of(page, size);
+	}
 
 	public TransactionResponse getTransactionById(Long id, Long currentUserId) {
 		Transaction transaction = transactionRepository.findByIdAndUserId(id, currentUserId);
@@ -141,7 +155,7 @@ public class TransactionService {
 				.orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 		if (!transaction.getUser().getId().equals(currentUserId)) {
 			throw new UnauthorizedAccessException("You can only delete your own transactions");
-		}		
+		}
 		transactionRepository.delete(transaction);
 	}
 
@@ -149,8 +163,8 @@ public class TransactionService {
 
 	// START: Summary methods
 
-		public Map<String, Double> getMonthlySummaryForCurrentUser(LocalDate month, Long currentUserId) {
-		Map <String, Double> monthlySummary = new HashMap<>();
+	public Map<String, Double> getMonthlySummaryForCurrentUser(LocalDate month, Long currentUserId) {
+		Map<String, Double> monthlySummary = new HashMap<>();
 		Double totalBalance = getBalanceForMonth(month, currentUserId);
 		Double totalExpense = getTotalExpenseForMonth(month, currentUserId);
 		Double totalIncome = getTotalIncomeForMonth(month, currentUserId);
@@ -232,7 +246,8 @@ public class TransactionService {
 		return response;
 	}
 
-	private Transaction setTransactionFields(Transaction transaction, TransactionRequest transactionRequest, User currentUser) {
+	private Transaction setTransactionFields(Transaction transaction, TransactionRequest transactionRequest,
+			User currentUser) {
 		transaction.setAmount(transactionRequest.getAmount());
 		transaction.setDescription(transactionRequest.getDescription());
 		transaction.setDate(transactionRequest.getDate() != null ? transactionRequest.getDate() : LocalDate.now());
@@ -240,20 +255,20 @@ public class TransactionService {
 		return validateCategoryOwnershipAndAssignOrThrow(transaction, transactionRequest, currentUser);
 	}
 
-	private Transaction validateCategoryOwnershipAndAssignOrThrow(Transaction transaction, TransactionRequest transactionRequest, User currentUser) {
+	private Transaction validateCategoryOwnershipAndAssignOrThrow(Transaction transaction,
+			TransactionRequest transactionRequest, User currentUser) {
 		if (transaction.getIsExpense()) {
 			ExpenseCategory expenseCategory = expenseCategoryRepository.findById(transactionRequest.getCategoryId())
 					.orElseThrow(() -> new ResourceNotFoundException("Expense category not found"));
-			if(expenseCategory.getUser() != null && !expenseCategory.getUser().getId().equals(currentUser.getId())) {
+			if (expenseCategory.getUser() != null && !expenseCategory.getUser().getId().equals(currentUser.getId())) {
 				throw new UnauthorizedAccessException("Expense category does not belong to the current user");
 			}
 			transaction.setExpenseCategory(expenseCategory);
 			transaction.setIncomeCategory(null);
-		}
-		else {
+		} else {
 			IncomeCategory incomeCategory = incomeCategoryRepository.findById(transactionRequest.getCategoryId())
 					.orElseThrow(() -> new ResourceNotFoundException("Income category not found"));
-			if(incomeCategory.getUser() != null && !incomeCategory.getUser().getId().equals(currentUser.getId())) {
+			if (incomeCategory.getUser() != null && !incomeCategory.getUser().getId().equals(currentUser.getId())) {
 				throw new UnauthorizedAccessException("Income category does not belong to the current user");
 			}
 			transaction.setIncomeCategory(incomeCategory);
